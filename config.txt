@@ -1,0 +1,137 @@
+python -m pip install dbt-core dbt-bigquery
+
+#criar uma brach de desenvolvimento
+git checkout -b develop
+
+git branch => verificar a branch
+
+git checkout nome-da-branch => canso não estiver
+
+#para iniciar o projeto no terminal digite dbt init
+#coloque o nome do projeto
+#selecione [1] bigquery = digite 1
+#autenticação = digite 1
+#id do projeto = digite 1
+#dataser = digite 1
+#threads = digite 1
+#job_executation_timeouts = digite 1
+#desired = digite 1
+
+1- configurar o profiles, crie dentro da pasta do projeto profile.yml
+
+2- criar um .env, nesse caso ele vai chamar env_exemple.env, que vai o exemplo de como configurar o .env:
+    export GCP_DEV_PROJECT = 'projeto_prod'
+    export DBT_DEV_SCHEMA = 'schema_dev'
+    export GCP_DEV_KEYFILE_PATH = 'path/to/keyfile.json'
+
+3- crie um .env para acessar, e configure o envi com os acessos do banco:
+    export GCP_DEV_PROJECT = 'projeto_prod'
+    export DBT_DEV_SCHEMA = 'schema_dev'
+    export GCP_DEV_KEYFILE_PATH = 'path/to/keyfile.json'
+
+    export GCP_PROD_PROJECT = 'projeto_prod'
+    export DBT_PROD_SCHEMA = 'schema_dev'
+    export GCP_PROD_KEYFILE_PATH = 'path/to/keyfile.json'
+
+4- e configure o profiles.yml corretamente, com os dois bancos se tiver:
+    projeto_prod:
+    target: dev
+    outputs:
+        dev:
+        type: bigquery
+        method: service-account
+        project: "{{ env_var('GCP_DEV_PROJECT') }}"
+        dataset: "{{ env_var('DBT_DEV_SCHEMA') }}"
+        threads: 4
+        keyfile: "{{ env_var('GCP_DEV_KEYFILE_PATH') }}"
+        
+        prod:
+        type: bigquery
+        method: service-account
+        project: "{{ env_var('GCP_PROD_PROJECT') }}"
+        dataset: "{{ env_var('DBT_PROD_SCHEMA') }}"
+        threads: 4
+        keyfile: "{{ env_var('GCP_PROD_KEYFILE_PATH') }}"
+
+5- rode no terminal dentro da pasta do projeto o comando source .env, para ficar rastrado as variaveis
+
+6- rode o dbt debug para ver se esta tudo ok
+
+7- depois configure o dbt_project.yml:
+    name: 'projeto_prod'
+    version: '1.0.0'
+
+    profile: 'projeto_prod'
+
+    model-paths: ["models"]
+    analysis-paths: ["analyses"]
+    test-paths: ["tests"]
+    seed-paths: ["seeds"]
+    macro-paths: ["macros"]
+    snapshot-paths: ["snapshots"]
+
+    clean-targets:         # directories to be removed by `dbt clean`
+    - "target"
+    - "dbt_packages"
+
+
+    models:
+    projeto_prod:
+        staging:
+        schema: stg
+        materialized: table
+        tags: [staging]
+        
+        intermediate: 
+        schema: int
+        materialized: ephemeral
+        tags: [intermediate]
+        
+        marts:
+        schema: marts
+        materialized: table
+        tags: [marts]
+
+    # nesse projeto vamos usar seeds
+    seeds: 
+    projeto_prod:
+        schema: raw
+        tags: ['seeds']
+
+8- nesse projeto vamo usar uma macro, criar um arquivo chamado generate_schema_name.sql
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
